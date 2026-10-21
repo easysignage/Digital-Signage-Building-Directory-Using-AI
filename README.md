@@ -1,228 +1,237 @@
-# Digital Signage Building Directory (built with AI)
+# Building Directory for EasySignage
 
-An offline [EasySignage](https://easysignage.com) **custom app** that shows a
-building directory (tenant list) on digital signage screens. One package is
-uploaded once and every screen decides **which buildings to list** and
-**whether it is a touchscreen** from its **player tags**.
+A ready-to-use **building directory** (tenant list) for digital signage
+screens running [EasySignage](https://easysignage.com). Upload one file, then
+choose per screen **which buildings to list** and **whether the screen is a
+touchscreen** by adding simple tags to the screen. No coding needed.
 
-It follows the rules and starter template from
-[easysignage/Digital-Signage-Custom-Apps](https://github.com/easysignage/Digital-Signage-Custom-Apps):
-offline, ES5 JavaScript, bundled assets, signage theme, no secrets.
+It runs fully offline on the screen, works in landscape and portrait, and
+follows the EasySignage
+[custom app guidelines](https://github.com/easysignage/Digital-Signage-Custom-Apps).
 
-> **Built with AI:** this app is built by an AI agent using the
-> [prompt below](#build-it-with-an-ai-agent). Copy it into Claude Code,
-> Codex, Cursor or Copilot to build or rebuild the app yourself.
+> **Built with AI.** This app was built by an AI coding agent from the
+> [prompt at the end of this page](#build-it-with-an-ai-agent). You can use the
+> same prompt to rebuild or adapt it.
 
-## Sample logo
+![Directory on a landscape screen, listing all buildings](docs/images/display-landscape.jpg)
 
-The header shows the building management logo from
-[`app/images/building-logo.png`](app/images/building-logo.png).
-
-> **Note:** the included **Elevate Building Management** logo is a **sample
-> logo** for demonstration only. It does not belong to a real company.
-> Replace `app/images/building-logo.png` with your own logo (PNG or SVG,
-> about 720 px wide, ideally on a white or transparent background) and keep
-> the same file name, or update the `<img>` in `app/index.html`. The logo sits
-> on a white card so it stays readable on the dark, light and high-contrast
-> themes.
+| Touchscreen: search | Touchscreen: company details |
+|---|---|
+| ![Search with the on-screen keyboard](docs/images/touch-search.jpg) | ![Company details with floor, suite and directions](docs/images/touch-details.jpg) |
 
 ---
 
 ## Contents
 
-- [Sample logo](#sample-logo)
-- [What it does](#what-it-does)
-- [Data: companies.xlsx](#data-companiesxlsx)
-- [Player tags](#player-tags)
-- [Display mode (non-touch)](#display-mode-non-touch)
-- [Touch mode](#touch-mode)
-- [Layout and design](#layout-and-design)
+**For screen owners**
+
+- [Features](#features)
+- [Quick start](#quick-start)
+- [Screen tags](#screen-tags)
+- [The touchscreen experience](#the-touchscreen-experience)
+- [Customising](#customising)
+- [Troubleshooting](#troubleshooting)
+
+**For developers**
+
 - [Project structure](#project-structure)
-- [Updating the listings](#updating-the-listings)
+- [Build and package](#build-and-package)
 - [Preview in a browser](#preview-in-a-browser)
-- [Package and upload](#package-and-upload)
+- [How it works](#how-it-works)
+- [Test checklist](#test-checklist)
 - [Build it with an AI agent](#build-it-with-an-ai-agent)
-- [Technical rules](#technical-rules)
-- [Acceptance checklist](#acceptance-checklist)
 
 ---
 
-## What it does
+## Features
 
-| Screen type | Behaviour |
+- **One file for every screen.** Each screen shows its own building(s) based
+  on its tags.
+- **Any number of buildings.** Show one building, several, or all of them.
+- **Display screens** page through the list automatically
+  ("Page 2 of 4"), sorted A–Z, with floor and suite for every company.
+- **Touchscreens** show a **Tap to start** prompt. A tap opens search with a
+  built-in on-screen keyboard, building and category filters, and a details
+  page for each company with directions, phone and website. The screen
+  resets itself after a minute of no use.
+- **Landscape and portrait**, detected automatically.
+- **Readable from a distance**: high-contrast signage theme, large text,
+  dark, light and high-contrast colour options.
+- **Works offline.** Everything is stored on the screen.
+- **Your branding**: your logo, a title and an accent colour.
+
+---
+
+## Quick start
+
+**1. Download the app**
+
+Download [building-directory.zip](https://github.com/easysignage/Digital-Signage-Building-Directory-Using-AI/raw/main/downloads/building-directory.zip).
+It contains sample data: three buildings with 20 made-up companies each, and a
+sample logo. See [Customising](#customising) to use your own.
+
+**2. Upload it to EasySignage**
+
+1. Go to **Media** and upload `building-directory.zip`.
+2. Add it to a **playlist**.
+3. Assign the playlist to your screens and click **Publish changes**.
+
+**3. Tag your screens**
+
+Open each screen, click **More → Tags**, add the tags below, press Enter after
+each one, then click **Save**.
+
+| This screen should show | Add these tags |
 |---|---|
-| **Display (default)** | Shows the companies for the buildings this screen is tagged with, sorted A–Z, one page at a time. Pages change automatically every ~10 seconds with a "Page 2 of 4" indicator. No interaction. |
-| **Touchscreen** (`touchscreen` tag) | Pages through the listing like a display screen, with a **hand icon and "Tap to start"** prompt. A tap opens search with a built-in on-screen keyboard and filters; tapping a company opens a **details page**. After a period of no activity it goes back to the paging listing. |
+| Only Building 1 | `building1` |
+| Buildings 1 and 3 | `building1` and `building3` |
+| All buildings | `all` (or no building tag) |
+| Building 2 on a touchscreen | `building2` and `touchscreen` |
 
-Examples:
-
-- A screen in the lobby of Building 1 with tag `building1` shows only Building 1 tenants.
-- A screen at the campus entrance with tags `building1`, `building2`, `building3` (or `all`) shows every tenant, grouped/labelled by building.
-- A kiosk with tags `building2` and `touchscreen` shows Building 2 tenants with search and company details.
-
----
-
-## Data: companies.xlsx
-
-The listings live in [`companies.xlsx`](companies.xlsx) at the repo root.
-
-- **One sheet per building.** The sheet name is the building ID used in tags:
-  `building1`, `building2`, `building3`. Add a sheet (e.g. `building4`) to add
-  a building; no code change needed.
-- **Row 1 is the header.** Columns:
-
-| Column | Required | Example | Used for |
-|---|---|---|---|
-| Company Name | yes | Harborview Capital Partners | Listing, search, details title |
-| Floor | yes | 1 | Listing, details |
-| Suite | yes | 101 | Listing, details |
-| Category | yes | Finance | Category filter (touch), details |
-| Phone | no | (555) 300-1000 | Details page |
-| Website | no | www.harborview.example.com | Details page (text only, not a link) |
-
-Optional columns the app should support if present (shown on the details page
-only, ignored when empty): `Description`, `Hours`, `Email`, `Logo` (a file name
-inside `images/logos/`).
-
-- Blank rows are skipped. Extra unknown columns are ignored.
-- Building display name: derived from the sheet name (`building1` → "Building 1").
-
-Because custom apps **cannot read files at runtime** (no `fetch()` of local
-files on players), the Excel file is converted to `app/data.js` by a build
-script before packaging. The app never reads the `.xlsx` directly.
+Then click **Publish changes** on the playlist so the screens pick up their
+tags. If a screen shows all buildings when it shouldn't, see
+[Troubleshooting](#troubleshooting).
 
 ---
 
-## Player tags
+## Screen tags
 
-Set these on each player in EasySignage (**Screens → player → Tags**).
-The app reads them with `EasySignage.read()`.
+Tags are typed on each screen in EasySignage (**More → Tags**). Capital
+letters don't matter.
 
-### How tags are matched
+### Which buildings to show
 
-EasySignage tags are `key:value` pairs, and `tags.all` holds all of them as one
-comma-separated string (e.g. `"building1:yes,touchscreen:true"`). The app
-builds a list of **tokens** from every tag **key and value** (from `tags.all`
-and from each entry in `tags`), trimmed and lowercased, then looks for
-building IDs and keywords among them. So all of these work the same way:
-
-| On the player | Meaning |
+| Tag | Effect |
 |---|---|
-| key `building1` (any value) | show Building 1 |
-| key `building` = `building1` | show Building 1 |
-| key `location` = `building2` | show Building 2 |
-| keys `building1`, `building3` | show Buildings 1 and 3 |
-| any key or value `all` / `all-buildings` | show every building |
-| any key or value `touchscreen` or `touch` | enable touch mode |
+| `building1`, `building2`, … | Show that building. Add one tag per building. |
+| `all` | Show every building. |
+| *(no building tag)* | Show every building. |
 
-Rules:
+The building names come from the sheet names in the listings spreadsheet
+(see [Your company listings](#your-company-listings)). If you add a sheet
+called `building4`, the tag `building4` shows it.
 
-- A building is shown if **any token equals its sheet name** (case-insensitive).
-- If **no building matches** (no tags, typo, unknown building), show **all
-  buildings** so the screen is never blank. For the first 5 minutes a small
-  yellow line at the bottom of the screen says so and lists the tags the
-  player actually sent, so a wrong or missing tag is easy to spot.
-- Tags are read from the injected player object **and** the URL query, in
-  any shape (object keys, `key:value` lists, arrays, JSON strings).
-- When more than one building is shown, each row shows a small building label
-  and the building filter appears in touch mode.
-- Tag keys are case-sensitive in EasySignage, but the app compares lowercased
-  tokens so `Building1` and `building1` both work.
-- At most 20 tags reach a device.
+When a screen shows more than one building, each company also shows its
+building name.
 
-### Other optional tags
+### Touchscreen
 
-| Tag | Values | Default | Effect |
+| Tag | Effect |
+|---|---|
+| `touchscreen` (or `touch`) | Turns on Tap to start, search and company details. |
+
+Screens **without** this tag ignore taps completely.
+
+### Optional settings
+
+These tags use the `name:value` form, for example `title:Welcome to Elevate`.
+
+| Tag | Example | Default | Effect |
 |---|---|---|---|
-| `theme` | `dark`, `light`, `contrast` | `dark` | Colour palette (handled by `theme.js`) |
-| `accent` | hex colour, e.g. `0057b8` | theme default | Brand colour (handled by `theme.js`) |
-| `title` | text | `Building Directory` | Heading at the top |
-| `page_seconds` | number 5–60 | `10` | Seconds per page in display mode |
-| `idle_seconds` | number 15–600 | `60` | Touch mode: return to the "Tap to start" listing after this much inactivity |
+| `title` | `title:Tenant Directory` | Building Directory | Heading at the top |
+| `theme` | `theme:light` | `dark` | Colours: `dark`, `light` or `contrast` (high contrast) |
+| `accent` | `accent:#0057b8` | blue | Highlight colour, as a hex colour |
+| `page_seconds` | `page_seconds:15` | `10` | Seconds each page shows (5–60) |
+| `idle_seconds` | `idle_seconds:90` | `60` | Touchscreens: seconds of no use before going back to Tap to start (15–600) |
+
+> Building tags also work in the `name:value` form, for example
+> `building:building2` or `building2:yes`.
 
 ---
 
-## Display mode (non-touch)
+## The touchscreen experience
 
-- Header: building management logo, title, building name(s), current time (HH:MM, updated once a minute).
-- Body: companies sorted A–Z by name. Each row: **Company name**, *Category*,
-  **Floor**, **Suite** (and building label when several buildings are shown).
-- Rows per page are calculated from the available height so text stays at
-  least `--text-sm`/`--text-md` size; never shrink below `--text-xs`.
-- If everything fits on one page, no paging.
-- Otherwise auto-page every `page_seconds` with a slow fade (≥ 400 ms) and a
-  "Page X of Y" indicator. Loops forever.
-- One `setInterval` drives clock and paging. No DOM growth over time
-  (re-use row elements). Must run for days.
-- `cursor: none`, no hover effects, `overflow: hidden`.
+<img src="docs/images/tap-portrait.jpg" alt="Portrait touchscreen showing the Tap to start badge" width="320" align="right" />
 
-## Touch mode
+1. **Tap to start.** While nobody is using it, the screen pages through the
+   list like a display screen. A **Tap to start** badge with a hand icon
+   floats at the top-left of the list.
+2. **Search.** A tap anywhere opens search. Visitors type on the built-in
+   keyboard, and the list filters as they type, by company name or category.
+   They can also tap building and category filters, and scroll the list by
+   swiping or with the ▲ ▼ buttons.
+3. **Company details.** Tapping a company shows its building, floor and suite,
+   a "Take the elevator to Floor …" direction, and the phone, website, email
+   and opening hours if you provide them.
+4. **Reset.** After 60 seconds of no use (change it with `idle_seconds`), the
+   screen clears the search and goes back to Tap to start.
 
-Enabled when any tag key or value is `touchscreen` or `touch`. Screens
-without the tag ignore taps completely.
+The opening tap only opens search; it never presses a key or a company by
+accident.
 
-**Tap to start**
-
-- The screen starts like display mode (auto-paging list) with an accent
-  badge floating at the **top-left of the list**, just under the header: a
-  slowly pressing hand icon and **"Tap to start"**. It covers only the
-  column labels, never a company.
-- A tap anywhere opens touch mode. The opening tap only opens it; it never
-  presses a key or a company underneath.
-
-**Home / list screen**
-
-- Search field at the top showing what was typed, with a clear (×) button.
-- **Built-in on-screen keyboard** (A–Z, 0–9, space, backspace, clear). Do
-  not rely on the device's system keyboard; kiosk players usually have none.
-  Keys at least 64 px tall on 1080p, with visible pressed state.
-- **Category chips** (All + each category found in the shown buildings) and,
-  when more than one building is shown, **building chips**.
-- Search is case-insensitive, matches anywhere in company name and category,
-  ignores punctuation, and filters as you type (no "go" button needed).
-- Results list scrolls by **swipe/drag** or via large **▲ / ▼ page buttons**
-  (both). Show "N results". Show a friendly "No companies match "xyz"" state
-  with a Clear button.
-- Tap targets at least 64 px tall. Use `touchstart`/`click` handling that works
-  with both touch and mouse (for preview), and avoids double-firing.
-
-**Details page** (tap a company)
-
-- Large company name, building, floor, suite, category.
-- Phone, website, email, hours and description when present (website shown as
-  text; never navigate away from the app).
-- Logo from `images/logos/` if the `Logo` column names one, else an initials
-  badge in the accent colour.
-- Big **Back** button. Optional "You are here → Floor X" style wayfinding line.
-
-**Idle reset**
-
-- After `idle_seconds` with no touch, clear search and filters, close the
-  details page and go back to the auto-paging list with the "Tap to start"
-  prompt.
-
-Touch mode relaxes the "no interaction" signage rule only for the touch
-controls; everything else (theme, safe area, legibility) still applies.
+<br clear="right" />
 
 ---
 
-## Layout and design
+## Customising
 
-Built on the EasySignage signage theme (`theme.css`, `theme.js`, bundled
-Atkinson Hyperlegible font):
+### Your company listings
 
-- Dark background by default; contrast at least 4.5:1, target 7:1.
-- Everything inside the 5% overscan-safe area (`.screen`).
-- Text sized with `--text-*` variables; nothing below `--text-xs`; no thin
-  weights; mixed case.
-- **Landscape and portrait** both supported. Detect from `panel.resolution`
-  or the window size. Portrait: single column, keyboard docked at the bottom
-  in touch mode. Landscape: list on the left, keyboard/filters on the right
-  in touch mode; two-column list allowed in display mode when there are many
-  rows.
-- Slow fades only; nothing flashes; respect `prefers-reduced-motion`.
-- `<html lang="en">`, `alt` text on images.
-- All tag/data strings rendered with `textContent`, never `innerHTML`.
+Listings live in [`companies.xlsx`](companies.xlsx).
+
+- **One sheet per building.** The sheet name is the building's tag:
+  `building1`, `building2`, `building3`. To add a building, add a sheet
+  (for example `building4`). It is shown as "Building 4".
+- **Row 1 holds the column headings.** Then one row per company:
+
+| Column | Required | Example | Shown |
+|---|---|---|---|
+| Company Name | yes | Harborview Capital Partners | List, search, details |
+| Floor | yes | 1 | List, details |
+| Suite | yes | 101 | List, details |
+| Category | yes | Finance | List, category filter, details |
+| Phone | no | (555) 300-1000 | Details |
+| Website | no | www.example.com | Details (as text) |
+| Email | no | info@example.com | Details |
+| Hours | no | Mon–Fri 9am–5pm | Details |
+| Description | no | One or two sentences | Details |
+| Logo | no | `harborview.png` | Details (file in `app/images/logos/`) |
+
+Empty rows and extra columns are ignored.
+
+After editing the spreadsheet, rebuild the zip (see
+[Build and package](#build-and-package)) and upload the new zip in place of
+the old one in EasySignage, then publish the playlist. If you are not
+comfortable running the build, ask whoever maintains your signage, or use the
+[AI agent prompt](#build-it-with-an-ai-agent).
+
+### Your logo
+
+> **The Elevate Building Management logo is a sample logo** for demonstration
+> only. It does not belong to a real company.
+
+Replace [`app/images/building-logo.png`](app/images/building-logo.png) with
+your own logo, keeping the same file name, then rebuild the zip. Use a PNG
+about 720 px wide on a white or transparent background. The logo sits on a
+white card so it stays readable on every colour theme.
+
+### Title, colours and timing
+
+Use the [optional settings tags](#optional-settings). No rebuild needed.
+
+---
+
+## Troubleshooting
+
+When a screen finds no building tag, it shows **all buildings** and, for the
+first 5 minutes, a small **yellow line** at the bottom, for example:
+
+```
+No building tag found, showing all buildings. Tags received: none · Screen: Lobby · Data from: player object (URL has data)
+```
+
+Use it to see what the screen actually received.
+
+| What you see | Likely cause | What to do |
+|---|---|---|
+| All buildings, yellow line says **Tags received: none** | The tags have not reached the screen. | Check the tags are saved on that screen (**More → Tags → Save**), then **Publish changes** on the playlist and let the screen update. |
+| All buildings, yellow line **lists tags** | The building tag doesn't match a sheet name. | Check the spelling. `building2` must match a sheet called `building2`. |
+| Yellow line says **Screen: unknown** | The screen isn't receiving any player data. | Contact EasySignage support. The [player-info](https://github.com/easysignage/Digital-Signage-Custom-Apps/raw/main/downloads/player-info.zip) app shows what a screen receives. |
+| No **Tap to start** on a touchscreen | The `touchscreen` tag is missing or hasn't reached the screen. | Add `touchscreen` and check the yellow line as above. |
+| Black screen, no logo or title | The screen isn't running the app. | Play the EasySignage [clock](https://github.com/easysignage/Digital-Signage-Custom-Apps/raw/main/downloads/clock.zip) example on the same screen. If it's also black, contact EasySignage support. |
+| Yellow text starting with **Error:** | A script error on that player. | Send a photo of the message to whoever maintains your signage. |
+| Old content after an update | The screen still has the previous zip. | Replace the media item with the new zip and **Publish changes**. |
+| Clock shows the wrong time | The screen's own clock or timezone is wrong. | Fix the time settings on the screen. |
 
 ---
 
@@ -231,111 +240,138 @@ Atkinson Hyperlegible font):
 ```
 .
 ├── README.md
-├── companies.xlsx            ← edit listings here (one sheet per building)
+├── companies.xlsx            ← listings: one sheet per building
+├── downloads/
+│   └── building-directory.zip  ← ready-to-upload app (rebuilt by package.sh)
+├── docs/images/              ← screenshots for this README
 ├── scripts/
 │   ├── build-data.py         ← companies.xlsx → app/data.js
 │   ├── check.sh              ← EasySignage checks (ES5, paths, secrets), from the SDK
-│   └── package.sh            ← build data, run checks, zip app/ → dist/building-directory.zip
-├── app/                      ← the custom app (zip root = this folder's contents)
-│   ├── index.html            ← entry point
-│   ├── easysignage.js        ← copied unchanged from the EasySignage SDK
-│   ├── theme.css             ← signage theme (from the SDK)
-│   ├── theme.js              ← applies theme / accent tags (from the SDK)
-│   ├── fonts/                ← Atkinson Hyperlegible + OFL.txt
-│   ├── data.js               ← GENERATED: window.APP_DATA = {...}
-│   ├── common.js             ← shared helpers (DOM, sorting, search, drag scroll)
-│   ├── tags.js               ← tag → buildings / touchscreen parsing
-│   ├── directory.js          ← display mode: list + auto paging
-│   ├── touch.js              ← touch mode: keyboard, search, filters, details, idle
-│   ├── app.js                ← bootstrap: read panel, choose mode
-│   ├── style.css
-│   └── images/
-│       ├── building-logo.png ← SAMPLE building management logo (replace with yours)
-│       └── logos/            ← optional company logos
-└── dist/                     ← packaged zip (git-ignored)
-```
-
-`app/data.js` format:
-
-```js
-window.APP_DATA = {
-  generated: "2026-10-21T12:00:00Z",
-  buildings: [
-    {
-      id: "building1",
-      name: "Building 1",
-      companies: [
-        { name: "Harborview Capital Partners", floor: "1", suite: "101",
-          category: "Finance", phone: "(555) 300-1000",
-          website: "www.harborviewcapitalpar.example.com",
-          description: "", hours: "", email: "", logo: "" }
-      ]
-    }
-  ]
-};
+│   └── package.sh            ← build data, run checks, zip app/
+└── app/                      ← the custom app (its contents are the zip)
+    ├── index.html            ← entry point
+    ├── errors.js             ← shows script errors on screen
+    ├── easysignage.js        ← reads player data (EasySignage SDK, unchanged)
+    ├── theme.css, theme.js   ← signage theme (EasySignage SDK)
+    ├── fonts/                ← Atkinson Hyperlegible + licence
+    ├── data.js               ← GENERATED from companies.xlsx
+    ├── common.js             ← shared helpers
+    ├── tags.js               ← tags → buildings / touchscreen
+    ├── directory.js          ← paging list (display screens, Tap to start)
+    ├── touch.js              ← search, keyboard, filters, details, idle reset
+    ├── app.js                ← start-up: reads the screen, picks the mode
+    ├── style.css
+    └── images/
+        ├── building-logo.png ← SAMPLE logo, replace with yours
+        └── logos/            ← optional company logos
 ```
 
 ---
 
-## Updating the listings
+## Build and package
 
-1. Edit `companies.xlsx` (add/remove rows, or add a sheet for a new building).
-2. Rebuild and package:
-   ```bash
-   ./scripts/package.sh
-   ```
-3. Upload the new `dist/building-directory.zip` in EasySignage (replace the
-   existing media item). Screens update on their next sync.
-
-`build-data.py` needs Python 3 and `openpyxl`:
+Requires Python 3 and `openpyxl`:
 
 ```bash
 pip3 install openpyxl
 ```
 
+Then, from the repository root:
+
+```bash
+./scripts/package.sh
+```
+
+This converts `companies.xlsx` into `app/data.js`, checks the app against the
+EasySignage rules, and writes `dist/building-directory.zip` with `index.html`
+at the root. It also copies the zip to `downloads/building-directory.zip`.
+Commit that file so the download link in [Quick start](#quick-start) serves
+the new version.
+
 ---
 
 ## Preview in a browser
 
-Serve the app folder and pass test tags in the URL:
+Serve the `app` folder:
 
 ```bash
 cd app && python3 -m http.server 8000
 ```
 
-| Scenario | URL |
-|---|---|
-| Building 1, display | `http://localhost:8000/?resolution=1920x1080&tags.building=building1` |
-| All buildings, display | `http://localhost:8000/?resolution=1920x1080&tags.all=all` |
-| Buildings 1 + 3, portrait | `http://localhost:8000/?resolution=1080x1920&tags.building1=yes&tags.building3=yes` |
-| Touch kiosk, Building 2 | `http://localhost:8000/?resolution=1080x1920&tags.building=building2&tags.touchscreen=true` |
-| Touch, all, light theme | `http://localhost:8000/?resolution=1920x1080&tags.all=all,touchscreen&tags.theme=light` |
-| No tags (fallback) | `http://localhost:8000/` |
+Then open a preview link. Test tags go in the address as `tags.<name>=<value>`:
 
-Resize the window to check landscape and portrait.
+| Scenario | Link |
+|---|---|
+| Building 1, landscape | `http://localhost:8000/?resolution=1920x1080&tags.building1=` |
+| All buildings | `http://localhost:8000/?resolution=1920x1080&tags.all=all` |
+| Buildings 1 and 3, portrait | `http://localhost:8000/?resolution=1080x1920&tags.building1=&tags.building3=` |
+| Touchscreen, Building 2 | `http://localhost:8000/?resolution=1080x1920&tags.building2=&tags.touchscreen=` |
+| Touchscreen, light theme | `http://localhost:8000/?tags.all=all,touchscreen&tags.theme=light` |
+| No tags (yellow line) | `http://localhost:8000/` |
+
+Resize the window to check landscape and portrait. Click to tap; your
+computer keyboard also types into the search.
 
 ---
 
-## Package and upload
+## How it works
 
-```bash
-./scripts/package.sh       # → dist/building-directory.zip (index.html at the zip root)
-```
+- **Data.** Players can't read files at runtime, so `scripts/build-data.py`
+  turns `companies.xlsx` into `app/data.js` (`window.APP_DATA`), loaded with a
+  plain `<script>` tag.
+- **Tags.** The app reads tags from both places EasySignage sends them: the
+  injected player object (`EasySignage.read()`) and the page address. It
+  accepts any form: plain labels (`building2`), `name:value` pairs, the
+  combined `tags.all` string, lists and JSON. Every tag name and value
+  becomes a lowercase word. A building is shown when a word equals its sheet
+  name; `all` or `all-buildings` shows every building; `touchscreen` or
+  `touch` turns on touch mode.
+- **Orientation** comes from the real screen size, not the reported
+  resolution, because portrait-mounted screens often report a landscape
+  resolution. The layout is redone if the window size changes after loading.
+- **Display mode** measures how many rows fit and pages through them with a
+  slow fade, reusing the same elements, so it can run for days.
+- **Touch mode** builds its screen once and switches between the paging list
+  (with Tap to start) and the search screen. The idle timer returns to the
+  paging list.
+- **Errors.** `errors.js` loads first and prints any script error on screen,
+  since players have no console.
 
-In EasySignage:
+### Technical rules
 
-1. **Media → Upload** `dist/building-directory.zip`.
-2. Add it to a **playlist** and assign the playlist to the **screens**.
-3. Add tags to each player, e.g. `building1`, or `building1` + `touchscreen`,
-   or `all`.
+The app follows the EasySignage custom app
+[best practices](https://github.com/easysignage/Digital-Signage-Custom-Apps/blob/main/docs/best-practices.md):
+
+- `index.html` at the root of the zip; every file bundled; relative paths only.
+- ES5 JavaScript with classic `<script src>` tags, for older Tizen, webOS and
+  BrightSign players.
+- Flexbox only: no CSS grid, `clamp()` or flex `gap`.
+- No `fetch()` of local files.
+- No API keys, tokens or passwords: the zip is copied to every screen.
+- Text from tags and data is inserted as plain text (`textContent`).
+
+---
+
+## Test checklist
+
+- [ ] `building1` shows only Building 1; two building tags show both; `all` shows all
+- [ ] No tags or an unknown tag shows all buildings plus the yellow line
+- [ ] A new `building4` sheet shows with the `building4` tag after rebuilding, with no code change
+- [ ] Display screens page with "Page X of Y"; no paging when everything fits
+- [ ] `touchscreen` shows Tap to start; a tap opens search; screens without it ignore taps
+- [ ] Search, keyboard, filters, details and Back work; idle returns to Tap to start
+- [ ] Landscape (1920×1080) and portrait (1080×1920) look right, nothing cut off
+- [ ] A portrait screen reporting `resolution=1920x1080` still gets the portrait layout
+- [ ] `./scripts/package.sh` reports 0 errors; the zip has `index.html` at the root
 
 ---
 
 ## Build it with an AI agent
 
-Use this prompt with Claude Code, Codex, Cursor, Copilot or any coding agent,
-run from the root of this repository. For best results, first install the
-EasySignage custom app skill:
+This app was built with the prompt below. Use it with Claude Code, Codex,
+Cursor, GitHub Copilot or another coding agent, run in a copy of this
+repository. For best results, first install the EasySignage custom app skill
+(Claude Code):
 
 ```
 /plugin marketplace add easysignage/Digital-Signage-Custom-Apps
@@ -345,145 +381,113 @@ EasySignage custom app skill:
 Copy the prompt:
 
 ```text
-Build an EasySignage custom app: an offline building directory for digital signage screens.
-
-Follow the EasySignage custom app rules and starter from
+Build an EasySignage custom app: an offline building directory for digital
+signage screens. Follow the EasySignage custom app rules and starter from
 https://github.com/easysignage/Digital-Signage-Custom-Apps (use the
 easysignage-custom-app skill if installed; otherwise read its
 skills/easysignage-custom-app/SKILL.md, references/, docs/best-practices.md
 and templates/starter/). Copy easysignage.js, theme.css, theme.js and fonts/
-from that repo's sdk/ folder unchanged. Follow the full spec in this
-repository's README.md; this prompt summarises it.
+from that repo's sdk/ folder unchanged. This repository's README.md describes
+the finished app; follow it.
 
 HARD RULES
 - App lives in app/; index.html at the zip root; all assets bundled; relative paths only.
 - ES5 only (var, function(){}; no arrow functions, let/const, template literals,
   classes, async/await, ?. or ??). Plain <script src>, never type="module".
 - No CSS grid, clamp() or flex gap. Flexbox + CSS variables.
-- No fetch()/XHR of local files: data is shipped as app/data.js (window.APP_DATA).
-- No secrets, no remote URLs, no CDNs.
-- Render all data and tag strings with textContent.
-- Use the signage theme: --text-* sizes, nothing below --text-xs, 5% safe area,
-  dark default, contrast >= 4.5:1, slow fades, support `theme` and `accent` tags.
+- No fetch()/XHR of local files: data ships as app/data.js (window.APP_DATA).
+- No secrets, no remote URLs, no CDNs. Render data and tag strings with textContent.
+- Signage theme: --text-* sizes, nothing below --text-xs, 5% safe area, dark
+  default, contrast >= 4.5:1, slow motion only, support `theme` and `accent` tags.
 - Works in landscape and portrait, and with no tags at all.
 
 DATA
-- Source: companies.xlsx in the repo root. One sheet per building; the sheet
-  name (building1, building2, building3, ...) is the building ID.
-  Columns: Company Name, Floor, Suite, Category, Phone, Website; optional
-  Description, Hours, Email, Logo (file in app/images/logos/).
-- Write scripts/build-data.py (Python 3 + openpyxl) that converts every sheet
-  into app/data.js: window.APP_DATA = { generated, buildings: [{ id, name
-  ("building1" -> "Building 1"), companies: [{ name, floor, suite, category,
-  phone, website, description, hours, email, logo }] }] }. Skip blank rows,
-  ignore unknown columns, all values as strings.
-- Write scripts/package.sh that runs build-data.py, checks the app (ES5 / no
-  absolute or remote URLs / no fetch), and zips the contents of app/ into
-  dist/building-directory.zip with index.html at the root. Add dist/ to .gitignore.
+- Source: companies.xlsx at the repo root. One sheet per building; the sheet
+  name (building1, building2, ...) is the building ID; display name
+  "building1" -> "Building 1". Row 1 headers: Company Name, Floor, Suite,
+  Category, Phone, Website; optional Email, Hours, Description, Logo (file in
+  app/images/logos/). Skip blank rows, ignore unknown columns, strings only.
+- scripts/build-data.py (Python 3 + openpyxl) writes app/data.js:
+  window.APP_DATA = { generated, buildings: [{ id, name, companies: [{ name,
+  floor, suite, category, phone, website, email, hours, description, logo }] }] }.
+- scripts/package.sh runs build-data.py, runs scripts/check.sh (from the
+  SDK repo), zips the contents of app/ to dist/building-directory.zip and
+  copies it to downloads/building-directory.zip. dist/ is git-ignored.
 
-TAGS (read with EasySignage.read())
-- Build a list of lowercase, trimmed tokens from every tag key AND value: split
-  tags.all on "," then each part on ":", and also add every key/value of the
-  tags object (so URL previews without tags.all still work).
-- A building is shown if any token equals its id. Tokens "all" or
-  "all-buildings" show every building. If nothing matches, show all buildings
-  (never a blank screen) and console.warn.
-- Touch mode is on if any token equals "touchscreen".
-- Optional tags: title (default "Building Directory"), page_seconds (default 10,
-  clamp 5-60), idle_seconds (default 60, clamp 15-600), theme, accent.
-- Put this parsing in app/tags.js as small pure functions.
+TAGS
+- Read tags from EasySignage.read().tags AND from
+  EasySignage.parseQuery(location.search).tags (and any other player field
+  whose name contains "tag"). Accept any shape: object keys and values,
+  "a,b" and "key:value" strings (tags.all), arrays of strings or of
+  {key/name, value} objects, and JSON strings. Turn every tag name and value
+  into lowercase trimmed words. Skip the key "all" itself.
+- A building is shown when a word equals its id; "all" or "all-buildings"
+  shows every building. If nothing matches, show all buildings and, for 5
+  minutes, a small yellow line in the bottom safe margin (up to 2 lines):
+  "No building tag found, showing all buildings. Tags received: <words or
+  none> · Screen: <name or unknown> · Data from: <player object or URL>".
+- Touch mode when a word equals "touchscreen" or "touch".
+- Optional tags: title (default "Building Directory"), page_seconds (default
+  10, 5-60), idle_seconds (default 60, 15-600), theme, accent.
+- Keep tag parsing in app/tags.js as small pure functions.
 
-DISPLAY MODE (default, no touch)
-- Header: logo, title, building name(s), clock HH:MM (format by hand, no Intl).
-- Companies sorted A-Z; row = name, category, floor, suite, plus a building
-  label when more than one building is shown.
-- Compute rows per page from available height; if it all fits, no paging;
-  otherwise auto-page every page_seconds with a slow fade and "Page X of Y".
-  Landscape may use two columns when there are many rows.
-- One setInterval for clock + paging; reuse DOM nodes; must run for days.
-- cursor: none, overflow: hidden, no hover.
+LAYOUT
+- Header: logo (app/images/building-logo.png, a sample logo, on a white
+  rounded card, with alt text), title, building name(s) or "All buildings",
+  clock HH:MM (format by hand, no Intl).
+- Orientation from window.innerWidth/innerHeight (fall back to the
+  resolution), because portrait-mounted screens may report 1920x1080. Re-lay
+  out 2 s after load and whenever the window size changes (check once a
+  second as well as on resize).
+- app/errors.js loads first and shows uncaught errors as yellow text on screen.
 
-TOUCH MODE (tag "touchscreen" or "touch"; without it, taps are ignored)
-- Start in the display-mode paging list with a badge floating at the top-left
-  of the list (under the header, over the column labels only): an inline SVG
-  hand icon (slow press animation) and "Tap to start". Any tap opens touch
-  mode without pressing anything underneath; idle returns to this screen.
-- Search field + built-in on-screen keyboard (A-Z, 0-9, space, backspace,
-  clear); do not depend on the system keyboard. Filter as you type,
-  case-insensitive, matching company name and category, ignoring punctuation.
-- Category chips (All + categories present) and building chips when more than
-  one building is shown. "N results" and an empty state with a Clear button.
-- Results scroll by drag/swipe and by large up/down buttons.
-- Tap a company -> details page: name, building, floor, suite, category, and
-  phone, website (text only, never navigate), email, hours, description when
-  present; logo or an initials badge in the accent colour; big Back button.
-- Idle reset: after idle_seconds without input, clear search/filters, close
-  details, and return to the "Tap to start" paging list.
-- Tap targets >= 64px on 1080p; handle touch and mouse without double firing.
-- Landscape: list left, keyboard + filters right. Portrait: list on top,
-  keyboard docked at the bottom.
+DISPLAY MODE (every screen at rest)
+- Companies A-Z; row = name, category (+ building when several), floor, suite.
+- Measure rows per page from the available height; landscape uses two
+  columns when there are more rows than fit in one; portrait one column.
+  Auto-page every page_seconds with a slow fade and "Page X of Y". Reuse the
+  row elements; one setInterval drives clock, paging and checks.
 
-FILES
-app/index.html, app/easysignage.js, app/theme.css, app/theme.js, app/fonts/,
-app/data.js (generated), app/common.js, app/tags.js, app/directory.js,
-app/touch.js, app/app.js, app/style.css, app/images/building-logo.png,
-scripts/build-data.py, scripts/check.sh, scripts/package.sh.
-
-LOGO
-- Show the building management logo (app/images/building-logo.png, a sample
-  logo; use the file the user provides) at the left of the header on a white
-  rounded card so it reads on every theme, with alt text.
+TOUCH MODE (only with the touchscreen/touch tag; otherwise taps do nothing)
+- At rest the screen shows the display-mode list plus a flat "Tap to start"
+  badge (accent pill, no shadow or gradient) floating at the top-left of the
+  list, over the column labels only (move the list down slightly): a white
+  circle with an inline SVG hand (slow press animation) and two slow ripple
+  rings, then "Tap to start" and "Search companies & directions".
+- A tap anywhere (document click listener) opens touch mode without pressing
+  anything underneath. After idle_seconds without input it clears everything
+  and returns to the at-rest list.
+- Touch screen: search field (a display, not an input) with clear button;
+  built-in keyboard (1-0, QWERTY rows, backspace, Space, Clear); filter as you
+  type on name and category, ignoring case and punctuation; building chips
+  (when several buildings) and category chips; "N companies"; empty state
+  with a Clear button; list scrolls by swipe/drag and big up/down buttons.
+  Landscape: search + list left, chips + keyboard right (44%). Portrait:
+  search, chips, list, keyboard at the bottom. Tap targets >= 64px on 1080p.
+- Details page: Back button; initials badge (or logo); name, category;
+  Building / Floor / Suite boxes; "Take the elevator to Floor X, then follow
+  signs to Suite Y."; phone, website (text only), email, hours, description
+  when present. Landscape uses two columns (identity left, directions and
+  contacts right).
 
 VERIFY
-- Run build-data.py and package.sh.
-- Serve app/ with `python3 -m http.server` and check these URLs in landscape
-  (1920x1080) and portrait (1080x1920):
-  ?tags.building=building1
-  ?tags.all=all
-  ?tags.building1=yes&tags.building3=yes
-  ?tags.building=building2&tags.touchscreen=true
-  (no query string)
-- Confirm: correct buildings shown, paging works, search/keyboard/filters,
-  details page, Back, idle reset, no console errors, no clipped text.
-- Finish with: the tags to set on each player, preview URLs, and upload steps
-  (Media -> upload zip -> add to playlist -> assign to screen).
+- Run ./scripts/package.sh (0 errors).
+- Serve app/ with python3 -m http.server and check, in 1920x1080 and
+  1080x1920: ?tags.building1=  ?tags.all=all  ?tags.building1=&tags.building3=
+  ?tags.building2=&tags.touchscreen=  and no query (yellow line). Also a
+  1080x1920 window with ?resolution=1920x1080 (must lay out as portrait).
+- Confirm buildings, paging, Tap to start, search, filters, details, Back,
+  idle reset, no console errors and nothing cut off.
+- Finish with the tags to set on each screen and the upload steps
+  (Media -> upload zip -> add to playlist -> Publish changes).
 ```
-
----
-
-## Technical rules
-
-Summary of the EasySignage custom app rules this app must follow (full
-details in the
-[best practices](https://github.com/easysignage/Digital-Signage-Custom-Apps/blob/main/docs/best-practices.md)):
-
-- `index.html` at the top level of the zip; all assets bundled; relative paths.
-- ES5 JavaScript and classic `<script src>` tags (players include older Tizen,
-  webOS and BrightSign webviews).
-- Flexbox, no CSS grid / `clamp()` / flex `gap`.
-- No `fetch()` of local files; data in `data.js`.
-- **Never** put API keys, tokens or passwords in the app; it is copied to every screen.
-- Read player data only through `EasySignage.read()` from `easysignage.js`.
-
----
-
-## Acceptance checklist
-
-- [ ] `building1` tag shows only Building 1; two building tags show both; `all` shows all
-- [ ] No tags / unknown tag → all buildings, never blank
-- [ ] Adding a `building4` sheet and rebuilding shows Building 4 with tag `building4`, no code change
-- [ ] Display mode auto-pages with "Page X of Y"; no paging when it all fits
-- [ ] `touchscreen` tag enables search, on-screen keyboard, category/building chips
-- [ ] Tapping a company opens details; Back returns; idle reset works
-- [ ] Landscape and portrait look right at 1920×1080 and 1080×1920, nothing clipped
-- [ ] No console errors; ES5 only; no remote/absolute URLs; no secrets
-- [ ] `dist/building-directory.zip` has `index.html` at the root
-- [ ] Runs for hours without memory growth (single interval, DOM reused)
 
 ---
 
 ## Links
 
-- EasySignage custom apps docs: https://easysignage.com/help/custom-apps/digital-signage-custom-apps/
-- Custom apps SDK, examples and AI skills: https://github.com/easysignage/Digital-Signage-Custom-Apps
-- Upload media: https://easysignage.com/help/apps/digital-signage-upload-media/
+- [EasySignage custom apps documentation](https://easysignage.com/help/custom-apps/digital-signage-custom-apps/)
+- [EasySignage custom apps SDK, examples and AI skills](https://github.com/easysignage/Digital-Signage-Custom-Apps)
+- [Uploading media to EasySignage](https://easysignage.com/help/apps/digital-signage-upload-media/)
+
+All company names, phone numbers and websites in the sample data are made up.
