@@ -44,6 +44,8 @@
     var items = opts.items;
     var state = { query: "", category: "", building: "", details: null };
     var lastInput = new Date().getTime();
+    // False while app.js shows the auto-paging screen instead (tap mode).
+    var active = true;
     var filtered = [];
 
     // ---- Build the pieces once; layout() only re-parents them. ------------
@@ -337,6 +339,7 @@
     doc.addEventListener("mousedown", touched);
     doc.addEventListener("keydown", function (e) {
       touched();
+      if (!active) return;
       var k = e.key || "";
       if (k === "Escape") {
         if (state.details) closeDetails();
@@ -361,11 +364,24 @@
     return {
       // Called once a second by app.js.
       tick: function () {
-        if (new Date().getTime() - lastInput > opts.idleSeconds * 1000 && isDirty()) reset();
+        if (!active || new Date().getTime() - lastInput <= opts.idleSeconds * 1000) return;
+        // With onIdle, app.js hands the screen back to the auto-paging list.
+        if (opts.onIdle) opts.onIdle();
+        else if (isDirty()) reset();
       },
       relayout: function (portrait) {
         layout(portrait);
         updateArrows();
+      },
+      show: function (portrait) {
+        active = true;
+        touched();
+        layout(portrait);
+        updateArrows();
+      },
+      hide: function () {
+        active = false;
+        reset();
       }
     };
   }

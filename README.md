@@ -52,7 +52,7 @@ The header shows the building management logo from
 | Screen type | Behaviour |
 |---|---|
 | **Display (default)** | Shows the companies for the buildings this screen is tagged with, sorted A–Z, one page at a time. Pages change automatically every ~10 seconds with a "Page 2 of 4" indicator. No interaction. |
-| **Touchscreen** (`touchscreen` tag) | Same listing, plus a search box with a built-in on-screen keyboard and category filters. Tapping a company opens a **details page**. Returns to the home screen after a period of no activity. |
+| **Touchscreen** (`touchscreen` tag) | Pages through the listing like a display screen, with a **hand icon and "Tap to start"** prompt. A tap opens search with a built-in on-screen keyboard and filters; tapping a company opens a **details page**. After a period of no activity it goes back to the paging listing. |
 
 Examples:
 
@@ -113,13 +113,17 @@ building IDs and keywords among them. So all of these work the same way:
 | key `location` = `building2` | show Building 2 |
 | keys `building1`, `building3` | show Buildings 1 and 3 |
 | any key or value `all` / `all-buildings` | show every building |
-| any key or value `touchscreen` | enable touch mode |
+| any key or value `touchscreen` or `touch` | enable touch mode |
 
 Rules:
 
 - A building is shown if **any token equals its sheet name** (case-insensitive).
 - If **no building matches** (no tags, typo, unknown building), show **all
-  buildings** so the screen is never blank, and log a console warning.
+  buildings** so the screen is never blank. For the first 5 minutes a small
+  yellow line at the bottom of the screen says so and lists the tags the
+  player actually sent, so a wrong or missing tag is easy to spot.
+- Tags are read from the injected player object **and** the URL query, in
+  any shape (object keys, `key:value` lists, arrays, JSON strings).
 - When more than one building is shown, each row shows a small building label
   and the building filter appears in touch mode.
 - Tag keys are case-sensitive in EasySignage, but the app compares lowercased
@@ -134,7 +138,7 @@ Rules:
 | `accent` | hex colour, e.g. `0057b8` | theme default | Brand colour (handled by `theme.js`) |
 | `title` | text | `Building Directory` | Heading at the top |
 | `page_seconds` | number 5–60 | `10` | Seconds per page in display mode |
-| `idle_seconds` | number 15–600 | `60` | Touch mode: return home after this much inactivity |
+| `idle_seconds` | number 15–600 | `60` | Touch mode: return to the "Tap to start" listing after this much inactivity |
 
 ---
 
@@ -154,7 +158,17 @@ Rules:
 
 ## Touch mode
 
-Enabled when any tag key or value is `touchscreen`.
+Enabled when any tag key or value is `touchscreen` or `touch`. Screens
+without the tag ignore taps completely.
+
+**Tap to start**
+
+- The screen starts like display mode (auto-paging list) with an accent
+  badge floating at the **top-left of the list**, just under the header: a
+  slowly pressing hand icon and **"Tap to start"**. It covers only the
+  column labels, never a company.
+- A tap anywhere opens touch mode. The opening tap only opens it; it never
+  presses a key or a company underneath.
 
 **Home / list screen**
 
@@ -184,7 +198,8 @@ Enabled when any tag key or value is `touchscreen`.
 **Idle reset**
 
 - After `idle_seconds` with no touch, clear search and filters, close the
-  details page and return to the top of the list.
+  details page and go back to the auto-paging list with the "Tap to start"
+  prompt.
 
 Touch mode relaxes the "no interaction" signage rule only for the touch
 controls; everything else (theme, safe area, legibility) still applies.
@@ -388,7 +403,11 @@ DISPLAY MODE (default, no touch)
 - One setInterval for clock + paging; reuse DOM nodes; must run for days.
 - cursor: none, overflow: hidden, no hover.
 
-TOUCH MODE (tag "touchscreen")
+TOUCH MODE (tag "touchscreen" or "touch"; without it, taps are ignored)
+- Start in the display-mode paging list with a badge floating at the top-left
+  of the list (under the header, over the column labels only): an inline SVG
+  hand icon (slow press animation) and "Tap to start". Any tap opens touch
+  mode without pressing anything underneath; idle returns to this screen.
 - Search field + built-in on-screen keyboard (A-Z, 0-9, space, backspace,
   clear); do not depend on the system keyboard. Filter as you type,
   case-insensitive, matching company name and category, ignoring punctuation.
@@ -399,7 +418,7 @@ TOUCH MODE (tag "touchscreen")
   phone, website (text only, never navigate), email, hours, description when
   present; logo or an initials badge in the accent colour; big Back button.
 - Idle reset: after idle_seconds without input, clear search/filters, close
-  details, scroll to top.
+  details, and return to the "Tap to start" paging list.
 - Tap targets >= 64px on 1080p; handle touch and mouse without double firing.
 - Landscape: list left, keyboard + filters right. Portrait: list on top,
   keyboard docked at the bottom.

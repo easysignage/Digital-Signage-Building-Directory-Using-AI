@@ -5,33 +5,44 @@
 
   var ALL_WORDS = ["all", "all-buildings", "all_buildings", "allbuildings"];
 
-  function addTokens(list, value) {
-    var parts = String(value === undefined || value === null ? "" : value).split(",");
+  function addToken(list, s) {
+    var t = String(s).replace(/^\s+|\s+$/g, "").toLowerCase();
+    if (t && list.indexOf(t) < 0) list.push(t);
+  }
+
+  // Adds tokens from a tag value of any shape: "a,b", "key:value", a JSON
+  // string, an array of strings, or objects like { key: "a", value: "b" }.
+  function collect(list, value, depth) {
+    if (value === undefined || value === null || depth > 4) return;
+    if (typeof value === "object") {
+      for (var key in value) {
+        if (!value.hasOwnProperty(key)) continue;
+        // Array indexes and the "all" key (which holds the whole tag list)
+        // are not tags themselves.
+        if (!(value instanceof Array) && key !== "all") addToken(list, key);
+        collect(list, value[key], depth + 1);
+      }
+      return;
+    }
+    var s = String(value);
+    if (/^\s*[\[{]/.test(s)) {
+      try {
+        collect(list, JSON.parse(s), depth + 1);
+        return;
+      } catch (e) {}
+    }
+    var parts = s.split(/[,;|]/);
     for (var i = 0; i < parts.length; i++) {
-      var t = parts[i].replace(/^\s+|\s+$/g, "").toLowerCase();
-      if (t && list.indexOf(t) < 0) list.push(t);
+      var kv = parts[i].split(":");
+      for (var j = 0; j < kv.length; j++) addToken(list, kv[j]);
     }
   }
 
-  // Every tag key and value as lowercase tokens. Reads tags.all
-  // ("key:value,key:value") and each entry of the tags object, so previews
-  // that only pass tags.<key>=<value> work too.
-  function tokens(tags) {
+  // Every tag key and value as lowercase tokens, from any number of sources
+  // (the player object's tags, the URL query's tags, ...).
+  function tokens() {
     var list = [];
-    tags = tags || {};
-    var all = String(tags.all || "").split(",");
-    for (var i = 0; i < all.length; i++) {
-      var kv = all[i].split(":");
-      addTokens(list, kv[0]);
-      if (kv.length > 1) addTokens(list, kv.slice(1).join(":"));
-    }
-    for (var key in tags) {
-      // Skip the "all" key itself: it holds the tag list, not a request for
-      // all buildings.
-      if (!tags.hasOwnProperty(key) || key === "all") continue;
-      addTokens(list, key);
-      addTokens(list, tags[key]);
-    }
+    for (var i = 0; i < arguments.length; i++) collect(list, arguments[i], 0);
     return list;
   }
 
@@ -59,7 +70,7 @@
   }
 
   function isTouch(toks) {
-    return has(toks, "touchscreen");
+    return has(toks, "touchscreen") || has(toks, "touch");
   }
 
   // Parses a whole number tag, clamped to [min, max], or the default.
