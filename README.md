@@ -17,7 +17,8 @@ follows the EasySignage
 
 > **Built with AI.** This app was built by an AI coding agent from the
 > [prompt at the end of this page](#build-it-with-an-ai-agent). You can use the
-> same prompt to rebuild or adapt it.
+> same prompt to rebuild or adapt it. Read the full story on our blog:
+> [AI Vibe Coding: How We Built a Digital Signage Building Directory with AI](https://easysignage.com/blog/26/ai-vibe-coding-digital-signage-building-directory/).
 
 ![Directory on a landscape screen, listing all buildings](docs/images/display-landscape.jpg)
 
@@ -492,6 +493,7 @@ VERIFY
 
 ## Links
 
+- [Blog: AI Vibe Coding: How We Built a Digital Signage Building Directory with AI](https://easysignage.com/blog/26/ai-vibe-coding-digital-signage-building-directory/)
 - [EasySignage custom apps documentation](https://easysignage.com/help/custom-apps/digital-signage-custom-apps/)
 - [EasySignage custom apps SDK, examples and AI skills](https://github.com/easysignage/Digital-Signage-Custom-Apps)
 - [Uploading media to EasySignage](https://easysignage.com/help/apps/digital-signage-upload-media/)
