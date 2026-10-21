@@ -1,9 +1,15 @@
 # Building Directory for EasySignage
 
-A ready-to-use **building directory** (tenant list) for digital signage
-screens running [EasySignage](https://easysignage.com). Upload one file, then
-choose per screen **which buildings to list** and **whether the screen is a
-touchscreen** by adding simple tags to the screen. No coding needed.
+A ready-to-use **building directory** (tenant list) for **digital signage
+screens** running [EasySignage](https://easysignage.com). It works on both
+**non-touch** and **touch** screens. Upload one file, then choose per screen
+**which buildings to list** and **whether the screen is a touchscreen** by
+adding simple tags to the screen. No coding needed.
+
+| Screen type | What it shows |
+|---|---|
+| **Non-touch screen** (lobby display, wall screen, TV) | The company list pages through by itself, A–Z with floor and suite. No interaction needed. |
+| **Touchscreen** (kiosk, interactive display), tagged `touchscreen` | The same paging list with a **Tap to start** badge. A tap opens search with an on-screen keyboard, filters and company details, and it returns to the list when nobody is using it. |
 
 It runs fully offline on the screen, works in landscape and portrait, and
 follows the EasySignage
