@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Building Directory</title>
+    <link rel="stylesheet" href="theme.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!--
+      EasySignage building directory.
+
+      Player tags: building1 / building2 / ... or all (which buildings to list),
+      touchscreen (search + company details), title, page_seconds,
+      idle_seconds, theme, accent. See README.md.
+
+      Preview: index.html?resolution=1920x1080&tags.building=building1
+               index.html?resolution=1080x1920&tags.all=all,touchscreen
+    -->
+    <main class="screen" id="app">
+      <header class="dir-header">
+        <div class="dir-logo">
+          <img src="images/building-logo.png" alt="Elevate Building Management" />
+        </div>
+        <div class="dir-heading">
+          <h1 id="title">Building Directory</h1>
+          <p class="dir-subtitle" id="subtitle"></p>
+        </div>
+        <div class="dir-clock" id="clock"></div>
+      </header>
+      <div class="dir-body" id="body"></div>
+    </main>
+
+    <script src="easysignage.js"></script>
+    <script src="theme.js"></script>
+    <script src="data.js"></script>
+    <script src="common.js"></script>
+    <script src="tags.js"></script>
+    <script src="directory.js"></script>
+    <script src="touch.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
